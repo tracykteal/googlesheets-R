@@ -1,13 +1,11 @@
 ---
-title: "Dates as data"
+title: "Importing Google Sheets data into R"
 teaching: 10
 exercises: 3
 questions:
-- "What are good approaches for handling dates in spreadsheets?"
+- "How can you import data from Googlesheets into R?"
 objectives:
-- "Describe how dates are stored and formatted in spreadsheets."
-- "Describe the advantages of alternative date formatting in spreadsheets."
-- "Demonstrate best practices for entering dates in spreadsheets."
+- "Import Google Sheets data into R using the googlesheets4 package"
 keypoints:
 - "Treating dates as multiple pieces of data rather than one makes them easier to handle."
 ---
@@ -24,15 +22,15 @@ Gnumeric, etc.) are usually guaranteed to be compatible only within the same
 family of products. If you will later need to export the data and need to
 conserve the timestamps, you are better off handling them using one of the solutions discussed below.  
 
-Additionally, Excel can [turn things that aren't dates into dates](https://nsaunders.wordpress.com/2012/10/22/gene-name-errors-and-excel-lessons-not-learned/), 
-for example names or identifiers like MAR1, DEC1, OCT4. So if you're avoiding the date format overall, it's easier to identify these issues. 
+Additionally, Excel can [turn things that aren't dates into dates](https://nsaunders.wordpress.com/2012/10/22/gene-name-errors-and-excel-lessons-not-learned/),
+for example names or identifiers like MAR1, DEC1, OCT4. So if you're avoiding the date format overall, it's easier to identify these issues.
 
-> ## Exercise 
+> ## Exercise
 >
-> Challenge: pulling month, day and year out of dates 
+> Challenge: pulling month, day and year out of dates
 >   
-> - Let's create a tab called `dates` in our data spreadsheet and copy the 'plot 3' table from the `2014` tab (that contains the problematic dates). 
-> - Let’s extract month, day and year from the dates in the `Date collected` column into new columns. For this we 
+> - Let's create a tab called `dates` in our data spreadsheet and copy the 'plot 3' table from the `2014` tab (that contains the problematic dates).
+> - Let’s extract month, day and year from the dates in the `Date collected` column into new columns. For this we
 > can use the following built-in Excel functions:
 >
 > `YEAR()`  
@@ -40,7 +38,7 @@ for example names or identifiers like MAR1, DEC1, OCT4. So if you're avoiding th
 > `MONTH()`             
 >
 > `DAY()`
-> 
+>
 > (Make sure the new columns are formatted as a number and not as a date.)
 >
 > You can see that even though we expected the year to be 2014, the year is actually 2015. What happened here is that the field assistant who collected the data for year 2014 initially forgot to include their data for 'plot 3' in this dataset. They came back in 2015 to add the missing data into the dataset and entered the dates for 'plot 3' without the year. Excel automatically interpreted the year as 2015 - the year the data was entered into the spreadsheet and not the year the data was collected. Thereby, the spreadsheet program introduced an error in the dataset without the field assistant realising.
@@ -52,13 +50,13 @@ for example names or identifiers like MAR1, DEC1, OCT4. So if you're avoiding th
 {: .challenge}
 
 > ## Exercise
-> 
-> Challenge: pulling hour, minute and second out of the current time 
+>
+> Challenge: pulling hour, minute and second out of the current time
 >
 > Current time and date are best retrieved using the functions `NOW()`, which
 > returns the current date and time, and `TODAY()`, which returns the current
 > date. The results will be formatted according to your computer's settings.
-> 
+>
 > 1) Extract the year, month and day from the current date and time string
 > returned by the `NOW()` function.  
 > 2) Calculate the current time using `NOW()-TODAY()`.   
@@ -83,7 +81,7 @@ If you’re working with historic data, be extremely careful with your dates!
 
 Excel also entertains a second date system, the 1904 date system, as the default in Excel for Macintosh. This system will assign a
 different serial number than the [1900 date system](https://support.microsoft.com/en-us/help/214330/differences-between-the-1900-and-the-1904-date-system-in-excel). Because of this,
-[dates must be checked for accuracy when exporting data from Excel](http://uc3.cdlib.org/2014/04/09/abandon-all-hope-ye-who-enter-dates-in-excel/) (look for dates that are ~4 years off). 
+[dates must be checked for accuracy when exporting data from Excel](http://uc3.cdlib.org/2014/04/09/abandon-all-hope-ye-who-enter-dates-in-excel/) (look for dates that are ~4 years off).
 
 ## Date formats in spreadsheets
 
@@ -91,7 +89,7 @@ Spreadsheet programs have numerous “useful features” which allow them to han
 
 ![Many formats, many ambiguities](../fig/5_excel_dates_1.jpg)
 
-But these "features" often allow ambiguity to creep into your data. Ideally, data should be as unambiguous as possible. 
+But these "features" often allow ambiguity to creep into your data. Ideally, data should be as unambiguous as possible.
 
 ### Dates stored as integers
 
@@ -103,9 +101,9 @@ This serial number thing can actually be useful in some circumstances. By using
 the above functions we can easily add days, months or years to a given date.
 Say you had a sampling plan where you needed to sample every thirty seven days.
 In another cell, you could type:
-    
+
     =B2+37
-    
+
 And it would return
 
     8-Aug
@@ -130,8 +128,8 @@ the quantities to the correct entities.
 
 Which brings us to the many different ways Excel provides in how it displays dates. If you refer to the figure above, you’ll see that
 there are many ways that ambiguity creeps into your data depending on the format you chose when you enter your data, and if you’re not
-fully aware of which format you’re using, you can end up actually entering your data in a way that Excel will badly misinterpret and 
-you will end up with errors in your data that will be extremely difficult to track down and troubleshoot. 
+fully aware of which format you’re using, you can end up actually entering your data in a way that Excel will badly misinterpret and
+you will end up with errors in your data that will be extremely difficult to track down and troubleshoot.
 
 > ## Exercise  
 > What happens to the dates in the `dates` tab of our workbook if we save this sheet in Excel (in `csv` format) and then open the file in a plain text editor (like TextEdit or Notepad)? What happens to the dates if we then open the `csv` file in Excel?
@@ -165,15 +163,15 @@ Entering dates in one cell is helpful but due to the fact that the spreadsheet p
 (doing that somewhat behind the scenes), there is a better practice.  
 
 In dealing with dates in spreadsheets, separate date data into separate fields (day, month, year), which will eliminate any chance of
-ambiguity. 
+ambiguity.
 
 ### <a name="doy"></a> Storing dates as YEAR, DAY-OF-YEAR
 
 There is also another option. You can also store dates as year and day of year (DOY). Why? Because depending on your
 question, this might be what's useful to you, and there is practically no possibility for ambiguity creeping in.
 
-Statistical models often incorporate year as a factor, or a categorical variable, rather than a numeric variable, to account for 
-year-to-year variation, and DOY can be used to measure the passage of time within a year. 
+Statistical models often incorporate year as a factor, or a categorical variable, rather than a numeric variable, to account for
+year-to-year variation, and DOY can be used to measure the passage of time within a year.
 
 So, can you convert all your dates into DOY format? Well, in Excel, here’s a useful guide:
 

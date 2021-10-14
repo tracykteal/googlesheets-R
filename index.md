@@ -21,8 +21,7 @@ In this lesson, you will learn:
 - How to avoid common formatting mistakes
 - Importing Googlesheets data into R
 - Making use of the typing from Googlesheets in R
-- Viewing data in R
-- Summarizing data in R
+- Working with data in R
 
 In this lesson, however, you will *not* learn about data analysis with spreadsheets.
 Much of your time working with data will be spent in the initial 'data wrangling'
